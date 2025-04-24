@@ -1,9 +1,7 @@
 async function askQuestion(e) {
     e.preventDefault();
     const chatfield = document.querySelector("#chatfield");
-    const answer = document.querySelector("#response")
-
-    answer.innerText = "";
+    const answer = document.querySelector("#response");
 
     const options = {
         method: 'POST',
@@ -19,22 +17,27 @@ async function askQuestion(e) {
     const decoder = new TextDecoder('utf-8');
     let buffer = "";
 
+    let currentPara = document.createElement("p");
+    currentPara.classList.add("story-part");
+    answer.appendChild(currentPara);
+
     while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, {stream: true});
+        buffer += decoder.decode(value, { stream: true });
         let words = buffer.split(/\s+/);
         buffer = words.pop();
+
         for (let word of words) {
-            // console.log(word);
-            answer.innerText += " " + word
+            currentPara.innerText += " " + word;
         }
     }
+
     if (buffer) {
-        console.log(buffer)
-        answer.innerText += " " + buffer;
+        currentPara.innerText += " " + buffer;
     }
 }
+
 
 export default askQuestion;

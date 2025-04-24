@@ -3,33 +3,23 @@ import cors from 'cors';
 import {AzureChatOpenAI, AzureOpenAIEmbeddings} from "@langchain/openai";
 import {AIMessage, HumanMessage, SystemMessage} from "@langchain/core/messages";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
-import { tool } from "@langchain/core/tools";
-
-function multiplyFunction({a,b}) {
-    return a * b;
-}
-
-const multiply = tool(multiplyFunction, {
-    name: "multiply",
-    description: "this is a tool that can multiply two numbers, use this when the user asks to multiply two numbers",
-    schema: {
-        type: "object",
-        properties: {
-            a: {type: "number"},
-            b: {type: "number"},
-        }
-    }
-})
 
 const model = new AzureChatOpenAI({
     temperature: 1,
-}).bindTools([multiply]);
+});
 
 const messages = [
-    new SystemMessage("You are a bard who will weave an amazing story out of prompts, whenever a new prompt is given you build on the existing story that you made before.")
+    new SystemMessage("You are a bard who loves to tell a story. Together with the user you will write a story. When the user gives you a prompt you tell a part of the story. When the user gives another prompt you will continue the existing story using the new prompt. Because the story can continue forever your snippets don't have an ending. Until the user tells you to make up an ending")
 ];
-const tools = [multiply];
-const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
+
+const systemMessages = {
+    "dark romance": "You are a bard weaving a dark romance story, filled with emotional tension, danger, and passion. The mood should be intense and mysterious, with a sense of forbidden love or tragic fate.",
+    "cozy fantasy": "You are a bard telling a cozy fantasy tale filled with warmth, charm, and magic. The world is peaceful, the characters kind, and there is an overall sense of comfort and joy.",
+    "adventure": "You are a bard telling an exciting adventure story, filled with quests, danger, and heroism. The world is vast, and the characters are brave and bold.",
+    "mystery": "You are a bard telling a mystery story, filled with suspense, intrigue, and plot twists. The characters are detectives or adventurers seeking answers in a world of uncertainty.",
+    "epic fantasy": "You are a bard telling an epic fantasy tale, filled with grand battles, mythical creatures, and heroic deeds. The world is vast, and the stakes are high.",
+    "comedy": "You are a bard telling a comedic story, filled with humor, wit, and lighthearted moments. The characters may find themselves in funny, awkward, or unexpected situations."
+};
 
 
 const embeddings = new AzureOpenAIEmbeddings({
@@ -48,24 +38,14 @@ async function createJoke() {
     return result.content;
 }
 
-async function sendPrompt(prompt) {
+async function sendPrompt(prompt, tone) {
+    const toneMessage = systemMessages[tone] || systemMessages["cozy fantasy"];  // Default to cozy fantasy if no tone is selected
 
+    messages.push(new SystemMessage(toneMessage));
     messages.push(new HumanMessage(prompt));
+
     let result = await model.invoke(messages);
     messages.push(new AIMessage(result.content));
-
-    // console.log(result)
-
-    for (const toolCall of result.tool_calls) {
-        const selectedTool = toolsByName[toolCall.name];
-        console.log("now trying to call " + toolCall.name);
-        const toolMessage = await selectedTool.invoke(toolCall);
-        messages.push(toolMessage);
-    }
-
-    if(result.tool_calls > 0) {
-        result = await model.invoke(messages)
-    }
 
     return result.content;
 }
