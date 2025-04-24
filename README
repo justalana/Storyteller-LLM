@@ -1,0 +1,54 @@
+# PRG08-LLM Project
+
+Dit project is een client-server applicatie die gebruik maakt van een AI-model om vragen te beantwoorden en verhalen te genereren. De server maakt gebruik van LangChain en Azure OpenAI, terwijl de client een eenvoudige webinterface biedt.
+
+## Projectstructuur
+
+- **client/**: Bevat de frontend-code.
+- **server/**: Bevat de backend-code.
+- **.idea/**: IDE-specifieke configuratiebestanden.
+
+---
+
+### Vereisten
+
+- Node.js (versie 16 of hoger)
+- Een Azure OpenAI-account met de juiste API-sleutels
+- FAISS geïnstalleerd (voor vectoropslag)
+
+### Stappen
+
+1. **Repository klonen**:
+   ```bash
+   git clone <repository-url>
+   cd prg08-LLM
+2. Server installeren: 
+    1. Navigeer naar de server map in de terminal (cd server)
+    2. npm install
+3. Client installeren:
+    1. Navigeer naar de server map in de terminal (cd client)
+    2. npm install
+4. .env-bestand configureren:
+    1. Maak een .env bestand aan in de server map
+    2. Voeg deze variabelen toe:
+        - AZURE_EMBEDDING_DEPLOYMENT_NAME=<jouw-embedding-deployment-naam>
+        - EXPRESS_PORT=8000
+5. Vectorstore genereren: npm run embed
+6. Server starten:
+    1. cd server
+    2. npm run dev
+7. Client starten:
+    1. cd client
+    2. npm run dev
+
+### Mogelijke problemen
+1. FAISS gerelateerde fouten
+    - Zorg ervoor dat FAISS correct is geïnstalleerd en compatibel is met je Node.js-versie.
+    - Controleer of de bardvectordb-map correct is gegenereerd.
+2. Azure OpenAI API-fouten
+    - Controleer of je API-sleutels correct zijn ingesteld in het .env-bestand.
+    - Zorg ervoor dat je de juiste deployment-naam gebruikt voor embeddings.
+3. CORS-problemen
+    - Als je CORS-gerelateerde fouten krijgt, controleer dan of de cors-middleware correct is ingesteld in de server (server/index.js).
+4. Poortconflicten
+    - Zorg ervoor dat de poorten die door de server (8000) en client (5173) worden gebruikt, beschikbaar zijn.
