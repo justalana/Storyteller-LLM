@@ -1,25 +1,24 @@
 async function askQuestion(e, type = "story", genre = "") {
     e.preventDefault();
-    const answer = document.querySelector("#response");
-    answer.innerHTML = ""; // Clear previous result
-
-    const input = type === "story"
-        ? document.querySelector("#story-input")
-        : document.querySelector("#question-input");
-
-    const prompt = input.value;
-    input.value = "";
-
-    const options = {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ question: prompt, genre })  // Send genre to backend
-    };
+    const storyBox = document.querySelector("#story-response");
+    const questionBox = document.querySelector("#question-response");
 
     if (type === "story") {
+        storyBox.innerHTML = "";
+
+        const input = document.querySelector("#story-input");
+        const prompt = input.value;
+        input.value = "";
+
+        const options = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: prompt, genre })
+        };
+
         const response = await fetch("http://localhost:8000/question", options);
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -27,7 +26,7 @@ async function askQuestion(e, type = "story", genre = "") {
 
         let currentPara = document.createElement("p");
         currentPara.classList.add("story-part");
-        answer.appendChild(currentPara);
+        storyBox.appendChild(currentPara);
 
         while (true) {
             const { value, done } = await reader.read();
@@ -46,14 +45,30 @@ async function askQuestion(e, type = "story", genre = "") {
             currentPara.innerText += " " + buffer;
         }
     } else {
+        questionBox.innerHTML = "";
+
+        const input = document.querySelector("#question-input");
+        const prompt = input.value;
+        input.value = "";
+
+        const options = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: prompt })
+        };
+
         const response = await fetch("http://localhost:8000/bardtext", options);
         const data = await response.json();
 
         const responsePara = document.createElement("p");
         responsePara.classList.add("bard-answer");
         responsePara.innerText = data.answer;
-        answer.appendChild(responsePara);
+        questionBox.appendChild(responsePara);
     }
 }
+
 
 export default askQuestion;
