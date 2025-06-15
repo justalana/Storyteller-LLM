@@ -1,4 +1,4 @@
-async function askQuestion(e, type = "story") {
+async function askQuestion(e, type = "story", genre = "") {
     e.preventDefault();
     const answer = document.querySelector("#response");
     answer.innerHTML = ""; // Clear previous result
@@ -16,7 +16,7 @@ async function askQuestion(e, type = "story") {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ question: prompt })
+        body: JSON.stringify({ question: prompt, genre })  // Send genre to backend
     };
 
     if (type === "story") {

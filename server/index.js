@@ -46,17 +46,22 @@ app.get('/', (req, res) => {
     res.json({ message: 'Hello, world!' });
 });
 
-app.post('/question', async (req, res) => {
-    const prompt = req.body.question;
-    let result = await sendPrompt(prompt);
+app.post("/question", async (req, res) => {
+    const { question, genre } = req.body;
 
-    const stream = await model.stream(result)
+    const messages = [
+        new SystemMessage(`You are a bard who tells stories in the style of ${genre || "a fantasy tale"}. Start a story based on the user's prompt.`),
+        new HumanMessage(question)
+    ];
 
+    const stream = await model.stream(messages);
+    res.setHeader('Content-Type', 'text/plain');
     for await (const chunk of stream) {
         res.write(chunk.content);
     }
     res.end();
-})
+});
+
 
 app.post('/bardtext', async (req, res) => {
     const prompt = req.body.question;
