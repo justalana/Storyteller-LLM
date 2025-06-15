@@ -26,4 +26,3 @@ storyForm.addEventListener("submit", (e) => askQuestion(e, "story"));
 const questionForm = document.querySelector("#question-form");
 questionForm.addEventListener("submit", (e) => askQuestion(e, "bard"));
 
-
